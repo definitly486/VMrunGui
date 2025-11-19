@@ -5,6 +5,13 @@
 #include <QTimer>
 #include <QDebug>
 #include <QFileInfo>
+#include <QDir>
+#include <QDir>
+#include <QDateTime>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QListWidget>
+#include <QDialogButtonBox>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -46,16 +53,105 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_start_clicked()
 {
-    if (getVmName().isEmpty() || getMemory().isEmpty()) {
-        QMessageBox::warning(this, "Ошибка", "Заполните имя VM и объём памяти!");
+    QString vmName = getVmName().trimmed();
+
+    // Если имя пустое — покажем окно со списком существующих VM
+    if (vmName.isEmpty()) {
+        QDir vmDir("/ntfs-2TB/vm");
+        if (!vmDir.exists()) {
+            QMessageBox::warning(this, "Ошибка",
+                                 "Папка с виртуальными машинами не найдена:\n/ntfs-2TB/vm\n"
+                                 "Убедитесь, что диск примонтирован.");
+            return;
+        }
+
+        // Собираем все VM (папка + такой же .img внутри)
+        QStringList existingVMs;
+        const QStringList dirs = vmDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+        for (const QString &dir : dirs) {
+            QString imgPath = vmDir.absolutePath() + "/" + dir + "/" + dir + ".img";
+            if (QFileInfo::exists(imgPath)) {
+                existingVMs << dir;
+            }
+        }
+
+        if (existingVMs.isEmpty()) {
+            QMessageBox::information(this, "Нет виртуальных машин",
+                                     "Не найдено готовых VM в /ntfs-2TB/vm/\n\n"
+                                     "Создайте структуру:\n/ntfs-2TB/vm/имя_машины/имя_машины.img");
+            return;
+        }
+
+        // === КРАСИВОЕ ВЕРТИКАЛЬНОЕ ОКНО СО СПИСКОМ ===
+        QDialog dialog(this);
+        dialog.setWindowTitle("Выберите виртуальную машину");
+        dialog.setMinimumWidth(400);
+        dialog.setMinimumHeight(500);
+
+        auto *listWidget = new QListWidget(&dialog);
+        auto *layout = new QVBoxLayout(&dialog);
+        layout->addWidget(listWidget);
+        dialog.setLayout(layout);
+
+        // Заполняем список с дополнительной инфой (размер и дата)
+        for (const QString &name : existingVMs) {
+            QString imgPath = vmDir.absolutePath() + "/" + name + "/" + name + ".img";
+            QFileInfo info(imgPath);
+
+            QString sizeStr = info.exists()
+                                  ? QString::number(info.size() / 1024.0 / 1024 / 1024, 'f', 2) + " ГБ"
+                                  : "—";
+
+            QString itemText = QString("%1    (%2, изменён %3)")
+                                   .arg(name)
+                                   .arg(sizeStr)
+                                   .arg(info.lastModified().toString("dd.MM.yyyy hh:mm"));
+
+            auto *item = new QListWidgetItem(itemText);
+            item->setData(Qt::UserRole, name);  // сохраняем чистое имя VM
+            listWidget->addItem(item);
+        }
+
+        listWidget->setStyleSheet(
+            "QListWidget { font-size: 14px; }"
+            "QListWidget::item { padding: 10px; }"
+            "QListWidget::item:selected { background: #3399ff; color: white; }"
+            );
+
+        connect(listWidget, &QListWidget::itemDoubleClicked, &dialog, [&](QListWidgetItem *item){
+            ui->lineEdit_2->setText(item->data(Qt::UserRole).toString());
+            dialog.accept();
+
+            // Если память уже указана — сразу запускаем
+            if (!getMemory().isEmpty()) {
+                QTimer::singleShot(100, this, &MainWindow::on_pushButton_start_clicked);
+            }
+        });
+
+        // Кнопка "Отмена"
+        auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, &dialog);
+        layout->addWidget(buttonBox);
+        connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+        // Запуск диалога
+        if (dialog.exec() == QDialog::Accepted && listWidget->currentItem()) {
+            ui->lineEdit_2->setText(listWidget->currentItem()->data(Qt::UserRole).toString());
+        }
+
+        return;  // имя не было указано изначально, дальше не идём
+    }
+
+    // Обычная проверка, если имя уже введено вручную
+    if (getMemory().isEmpty()) {
+        QMessageBox::warning(this, "Ошибка", "Укажите объём памяти (например: 4G или 8192M)!");
         return;
     }
 
+    // Всё ок — запускаем VM
     shouldRestart = true;
     setVmRunningState(true);
     startBhyve();
 }
-
 void MainWindow::on_pushButton_stop_clicked()
 {
     shouldRestart = false;

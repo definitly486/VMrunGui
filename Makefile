@@ -813,50 +813,12 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/local/include/qt5/QtCore/QProcess \
 		/usr/local/include/qt5/QtCore/qprocess.h \
 		ui_mainwindow.h \
-		/usr/local/include/qt5/QtCore/QVariant \
-		/usr/local/include/qt5/QtGui/QIcon \
-		/usr/local/include/qt5/QtWidgets/QApplication \
-		/usr/local/include/qt5/QtWidgets/qapplication.h \
-		/usr/local/include/qt5/QtCore/qcoreapplication.h \
-		/usr/local/include/qt5/QtCore/qeventloop.h \
-		/usr/local/include/qt5/QtWidgets/qdesktopwidget.h \
-		/usr/local/include/qt5/QtGui/qguiapplication.h \
-		/usr/local/include/qt5/QtGui/qinputmethod.h \
-		/usr/local/include/qt5/QtWidgets/QGridLayout \
-		/usr/local/include/qt5/QtWidgets/qgridlayout.h \
-		/usr/local/include/qt5/QtWidgets/qlayout.h \
-		/usr/local/include/qt5/QtWidgets/qlayoutitem.h \
-		/usr/local/include/qt5/QtWidgets/qboxlayout.h \
-		/usr/local/include/qt5/QtWidgets/QGroupBox \
-		/usr/local/include/qt5/QtWidgets/qgroupbox.h \
-		/usr/local/include/qt5/QtWidgets/qframe.h \
-		/usr/local/include/qt5/QtWidgets/QHBoxLayout \
-		/usr/local/include/qt5/QtWidgets/QLabel \
-		/usr/local/include/qt5/QtWidgets/qlabel.h \
-		/usr/local/include/qt5/QtWidgets/QLineEdit \
-		/usr/local/include/qt5/QtWidgets/qlineedit.h \
-		/usr/local/include/qt5/QtGui/qtextcursor.h \
-		/usr/local/include/qt5/QtGui/qtextformat.h \
-		/usr/local/include/qt5/QtGui/qpen.h \
-		/usr/local/include/qt5/QtGui/qtextoption.h \
-		/usr/local/include/qt5/QtWidgets/QPushButton \
-		/usr/local/include/qt5/QtWidgets/qpushbutton.h \
-		/usr/local/include/qt5/QtWidgets/qabstractbutton.h \
-		/usr/local/include/qt5/QtWidgets/QSpacerItem \
-		/usr/local/include/qt5/QtWidgets/QTextEdit \
-		/usr/local/include/qt5/QtWidgets/qtextedit.h \
-		/usr/local/include/qt5/QtWidgets/qabstractscrollarea.h \
-		/usr/local/include/qt5/QtGui/qtextdocument.h \
-		/usr/local/include/qt5/QtWidgets/QVBoxLayout \
-		/usr/local/include/qt5/QtWidgets/QWidget \
 		/usr/local/include/qt5/QtWidgets/QMessageBox \
 		/usr/local/include/qt5/QtWidgets/qmessagebox.h \
 		/usr/local/include/qt5/QtWidgets/qdialog.h \
 		/usr/local/include/qt5/QtCore/QTimer \
 		/usr/local/include/qt5/QtCore/qtimer.h \
 		/usr/local/include/qt5/QtCore/qbasictimer.h \
-		/usr/local/include/qt5/QtCore/QDateTime \
-		/usr/local/include/qt5/QtCore/qdatetime.h \
 		/usr/local/include/qt5/QtCore/QDebug \
 		/usr/local/include/qt5/QtCore/QFileInfo \
 		/usr/local/include/qt5/QtCore/qfileinfo.h
