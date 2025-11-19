@@ -23,9 +23,12 @@ private slots:
     void onVmReadyReadStandardOutput();
     void onVmReadyReadStandardError();
     void onVmErrorOccurred(QProcess::ProcessError error);
-
+    void cleanupAllTapDevices();
     void startBhyve();
     void destroyVm();
+    void setVmRunningState(bool running);
+    void setVmStoppedState();
+
 
 private:
     Ui::MainWindow *ui;

@@ -53,9 +53,11 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = main.cpp \
-		mainwindow.cpp moc_mainwindow.cpp
+		mainwindow.cpp qrc_resources.cpp \
+		moc_mainwindow.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
+		qrc_resources.o \
 		moc_mainwindow.o
 DIST          = /usr/local/lib/qt5/mkspecs/features/spec_pre.prf \
 		/usr/local/lib/qt5/mkspecs/common/unix.conf \
@@ -67,8 +69,10 @@ DIST          = /usr/local/lib/qt5/mkspecs/features/spec_pre.prf \
 		/usr/local/lib/qt5/mkspecs/qconfig.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_core.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_dbus.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_config_declarative.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_gui.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_network.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_config_printsupport.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_widgets.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_accessibility_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_bootstrap_private.pri \
@@ -76,6 +80,9 @@ DIST          = /usr/local/lib/qt5/mkspecs/features/spec_pre.prf \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_core_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designercomponents_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_devicediscovery_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_edid_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_egl_support_private.pri \
@@ -85,6 +92,8 @@ DIST          = /usr/local/lib/qt5/mkspecs/features/spec_pre.prf \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_glx_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_gui.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_gui_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_help.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_help_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_input_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_kms_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_linuxaccessibility_support_private.pri \
@@ -92,14 +101,36 @@ DIST          = /usr/local/lib/qt5/mkspecs/features/spec_pre.prf \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_network_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_packetprotocol_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldebug_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldevtools_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickparticles_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickshapes_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_theme_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_uiplugin.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_vulkan_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xkbcommon_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml_private.pri \
 		/usr/local/lib/qt5/mkspecs/features/qt_functions.prf \
 		/usr/local/lib/qt5/mkspecs/features/qt_config.prf \
 		/usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf \
@@ -147,8 +178,10 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 		/usr/local/lib/qt5/mkspecs/qconfig.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_core.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_dbus.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_config_declarative.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_gui.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_network.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_config_printsupport.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_config_widgets.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_accessibility_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_bootstrap_private.pri \
@@ -156,6 +189,9 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_core_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_designercomponents_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_devicediscovery_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_edid_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_egl_support_private.pri \
@@ -165,6 +201,8 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_glx_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_gui.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_gui_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_help.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_help_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_input_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_kms_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_linuxaccessibility_support_private.pri \
@@ -172,14 +210,36 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_network_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_packetprotocol_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldebug_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldevtools_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickparticles_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickshapes_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_service_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_theme_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_uiplugin.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_vulkan_support_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri \
 		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xkbcommon_support_private.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml.pri \
+		/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml_private.pri \
 		/usr/local/lib/qt5/mkspecs/features/qt_functions.prf \
 		/usr/local/lib/qt5/mkspecs/features/qt_config.prf \
 		/usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf \
@@ -204,7 +264,8 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 		/usr/local/lib/qt5/mkspecs/features/exceptions.prf \
 		/usr/local/lib/qt5/mkspecs/features/yacc.prf \
 		/usr/local/lib/qt5/mkspecs/features/lex.prf \
-		vmrun.pro
+		vmrun.pro \
+		resources.qrc
 	$(QMAKE) -o Makefile vmrun.pro
 /usr/local/lib/qt5/mkspecs/features/spec_pre.prf:
 /usr/local/lib/qt5/mkspecs/common/unix.conf:
@@ -216,8 +277,10 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 /usr/local/lib/qt5/mkspecs/qconfig.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_config_core.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_config_dbus.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_config_declarative.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_config_gui.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_config_network.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_config_printsupport.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_config_widgets.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_accessibility_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_bootstrap_private.pri:
@@ -225,6 +288,9 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_core_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_dbus_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_designer_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_designercomponents_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_devicediscovery_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_edid_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_egl_support_private.pri:
@@ -234,6 +300,8 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_glx_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_gui.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_gui_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_help.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_help_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_input_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_kms_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_linuxaccessibility_support_private.pri:
@@ -241,14 +309,36 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_network_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_openglextensions_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_packetprotocol_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_platformcompositor_support_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_printsupport_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qml_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldebug_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmldevtools_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlmodels_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_qmlworkerscript_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quick_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickparticles_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickshapes_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_quickwidgets_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_service_support_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_sql_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_theme_support_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_uiplugin.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_vulkan_support_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_widgets_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_xcb_qpa_lib_private.pri:
 /usr/local/lib/qt5/mkspecs/modules/qt_lib_xkbcommon_support_private.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml.pri:
+/usr/local/lib/qt5/mkspecs/modules/qt_lib_xml_private.pri:
 /usr/local/lib/qt5/mkspecs/features/qt_functions.prf:
 /usr/local/lib/qt5/mkspecs/features/qt_config.prf:
 /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf:
@@ -274,6 +364,7 @@ Makefile: vmrun.pro /usr/local/lib/qt5/mkspecs/freebsd-clang/qmake.conf /usr/loc
 /usr/local/lib/qt5/mkspecs/features/yacc.prf:
 /usr/local/lib/qt5/mkspecs/features/lex.prf:
 vmrun.pro:
+resources.qrc:
 qmake: FORCE
 	@$(QMAKE) -o Makefile vmrun.pro
 
@@ -288,6 +379,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
+	$(COPY_FILE) --parents resources.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/local/lib/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents mainwindow.h $(DISTDIR)/
 	$(COPY_FILE) --parents main.cpp mainwindow.cpp $(DISTDIR)/
@@ -315,8 +407,14 @@ check: first
 
 benchmark: first
 
-compiler_rcc_make_all:
+compiler_rcc_make_all: qrc_resources.cpp
 compiler_rcc_clean:
+	-$(DEL_FILE) qrc_resources.cpp
+qrc_resources.cpp: resources.qrc \
+		/usr/local/lib/qt5/bin/rcc \
+		icons/bhyve.png
+	/usr/local/lib/qt5/bin/rcc -name resources resources.qrc -o qrc_resources.cpp
+
 compiler_moc_predefs_make_all: moc_predefs.h
 compiler_moc_predefs_clean:
 	-$(DEL_FILE) moc_predefs.h
@@ -337,8 +435,10 @@ moc_mainwindow.cpp: mainwindow.h \
 		/usr/local/include/qt5/QtCore/qconfig-modules.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-core.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-dbus.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-declarative.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-gui.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-network.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-printsupport.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-widgets.h \
 		/usr/local/include/qt5/QtCore/qtcore-config.h \
 		/usr/local/include/qt5/QtCore/qsystemdetection.h \
@@ -463,7 +563,7 @@ compiler_yacc_impl_make_all:
 compiler_yacc_impl_clean:
 compiler_lex_make_all:
 compiler_lex_clean:
-compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
+compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_header_clean compiler_uic_clean 
 
 ####### Compile
 
@@ -478,8 +578,10 @@ main.o: main.cpp mainwindow.h \
 		/usr/local/include/qt5/QtCore/qconfig-modules.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-core.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-dbus.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-declarative.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-gui.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-network.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-printsupport.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-widgets.h \
 		/usr/local/include/qt5/QtCore/qtcore-config.h \
 		/usr/local/include/qt5/QtCore/qsystemdetection.h \
@@ -603,8 +705,10 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/local/include/qt5/QtCore/qconfig-modules.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-core.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-dbus.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-declarative.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-gui.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-network.h \
+		/usr/local/include/qt5/QtCore/modules/qconfig-printsupport.h \
 		/usr/local/include/qt5/QtCore/modules/qconfig-widgets.h \
 		/usr/local/include/qt5/QtCore/qtcore-config.h \
 		/usr/local/include/qt5/QtCore/qsystemdetection.h \
@@ -709,6 +813,42 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/local/include/qt5/QtCore/QProcess \
 		/usr/local/include/qt5/QtCore/qprocess.h \
 		ui_mainwindow.h \
+		/usr/local/include/qt5/QtCore/QVariant \
+		/usr/local/include/qt5/QtGui/QIcon \
+		/usr/local/include/qt5/QtWidgets/QApplication \
+		/usr/local/include/qt5/QtWidgets/qapplication.h \
+		/usr/local/include/qt5/QtCore/qcoreapplication.h \
+		/usr/local/include/qt5/QtCore/qeventloop.h \
+		/usr/local/include/qt5/QtWidgets/qdesktopwidget.h \
+		/usr/local/include/qt5/QtGui/qguiapplication.h \
+		/usr/local/include/qt5/QtGui/qinputmethod.h \
+		/usr/local/include/qt5/QtWidgets/QGridLayout \
+		/usr/local/include/qt5/QtWidgets/qgridlayout.h \
+		/usr/local/include/qt5/QtWidgets/qlayout.h \
+		/usr/local/include/qt5/QtWidgets/qlayoutitem.h \
+		/usr/local/include/qt5/QtWidgets/qboxlayout.h \
+		/usr/local/include/qt5/QtWidgets/QGroupBox \
+		/usr/local/include/qt5/QtWidgets/qgroupbox.h \
+		/usr/local/include/qt5/QtWidgets/qframe.h \
+		/usr/local/include/qt5/QtWidgets/QHBoxLayout \
+		/usr/local/include/qt5/QtWidgets/QLabel \
+		/usr/local/include/qt5/QtWidgets/qlabel.h \
+		/usr/local/include/qt5/QtWidgets/QLineEdit \
+		/usr/local/include/qt5/QtWidgets/qlineedit.h \
+		/usr/local/include/qt5/QtGui/qtextcursor.h \
+		/usr/local/include/qt5/QtGui/qtextformat.h \
+		/usr/local/include/qt5/QtGui/qpen.h \
+		/usr/local/include/qt5/QtGui/qtextoption.h \
+		/usr/local/include/qt5/QtWidgets/QPushButton \
+		/usr/local/include/qt5/QtWidgets/qpushbutton.h \
+		/usr/local/include/qt5/QtWidgets/qabstractbutton.h \
+		/usr/local/include/qt5/QtWidgets/QSpacerItem \
+		/usr/local/include/qt5/QtWidgets/QTextEdit \
+		/usr/local/include/qt5/QtWidgets/qtextedit.h \
+		/usr/local/include/qt5/QtWidgets/qabstractscrollarea.h \
+		/usr/local/include/qt5/QtGui/qtextdocument.h \
+		/usr/local/include/qt5/QtWidgets/QVBoxLayout \
+		/usr/local/include/qt5/QtWidgets/QWidget \
 		/usr/local/include/qt5/QtWidgets/QMessageBox \
 		/usr/local/include/qt5/QtWidgets/qmessagebox.h \
 		/usr/local/include/qt5/QtWidgets/qdialog.h \
@@ -716,8 +856,14 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/local/include/qt5/QtCore/qtimer.h \
 		/usr/local/include/qt5/QtCore/qbasictimer.h \
 		/usr/local/include/qt5/QtCore/QDateTime \
-		/usr/local/include/qt5/QtCore/qdatetime.h
+		/usr/local/include/qt5/QtCore/qdatetime.h \
+		/usr/local/include/qt5/QtCore/QDebug \
+		/usr/local/include/qt5/QtCore/QFileInfo \
+		/usr/local/include/qt5/QtCore/qfileinfo.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainwindow.o mainwindow.cpp
+
+qrc_resources.o: qrc_resources.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qrc_resources.o qrc_resources.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
