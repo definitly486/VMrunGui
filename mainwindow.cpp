@@ -493,27 +493,23 @@ void MainWindow::showRunningVmsDialog()
     if (!m_runningVmsDialog) {
         m_runningVmsDialog = new QDialog(this);
         m_runningVmsDialog->setWindowTitle("Запущенные виртуальные машины (bhyve)");
-        m_runningVmsDialog->resize(1000, 680);
+        m_runningVmsDialog->resize(800, 600);
         m_runningVmsDialog->setModal(false);
 
         auto *layout = new QVBoxLayout(m_runningVmsDialog);
 
-        // === Список ВМ вместо QTextEdit ===
         m_runningVmsList = new QListWidget(m_runningVmsDialog);
         m_runningVmsList->setStyleSheet(
-            "QListWidget { background-color: #1e1e1e; color: #d4d4d4; font-family: Monospace; font-size: 13px; }"
-            "QListWidget::item { padding: 8px; border-bottom: 1px solid #333; }"
-            "QListWidget::item:selected { background: #44475a; }"
-            );
+            "QListWidget { background-color: #1e1e1e; color: #d4d4d4; font-family: Monospace; font-size: 14px; }"
+            "QListWidget::item { padding: 15px; }"
+            "QListWidget::item:selected { background: #44475a; color: white; }"
+        );
         layout->addWidget(m_runningVmsList);
 
-        // === Кнопки управления ===
         auto *btnLayout = new QHBoxLayout();
-
         auto *refreshBtn = new QPushButton("Обновить", m_runningVmsDialog);
-        m_stopBtn = new QPushButton("Остановить ВМ", m_runningVmsDialog);
-        m_killBtn = new QPushButton("Убить (kill -9)", m_runningVmsDialog);
-        auto *copyBtn = new QPushButton("Копировать всё", m_runningVmsDialog);
+        m_stopBtn = new QPushButton("Остановить грациозно", m_runningVmsDialog);
+        m_killBtn = new QPushButton("Убить (kill -9) ☠️", m_runningVmsDialog);
         auto *closeBtn = new QPushButton("Закрыть", m_runningVmsDialog);
 
         m_stopBtn->setStyleSheet("background-color: #ff5555; color: white; font-weight: bold;");
@@ -525,25 +521,17 @@ void MainWindow::showRunningVmsDialog()
         btnLayout->addWidget(m_stopBtn);
         btnLayout->addWidget(m_killBtn);
         btnLayout->addStretch();
-        btnLayout->addWidget(copyBtn);
         btnLayout->addWidget(closeBtn);
         layout->addLayout(btnLayout);
 
         connect(refreshBtn, &QPushButton::clicked, this, &MainWindow::on_pushButton_runningVms_clicked);
         connect(m_runningVmsList, &QListWidget::itemSelectionChanged, this, [this]() {
-            bool hasSelection = !m_runningVmsList->selectedItems().isEmpty();
-            m_stopBtn->setEnabled(hasSelection);
-            m_killBtn->setEnabled(hasSelection);
+            bool has = m_runningVmsList->currentItem() != nullptr;
+            m_stopBtn->setEnabled(has);
+            m_killBtn->setEnabled(has);
         });
         connect(m_stopBtn, &QPushButton::clicked, this, &MainWindow::stopSelectedVm);
         connect(m_killBtn, &QPushButton::clicked, this, &MainWindow::killSelectedVm);
-        connect(copyBtn, &QPushButton::clicked, this, [this]() {
-            QString text;
-            for (int i = 0; i < m_runningVmsList->count(); ++i)
-                text += m_runningVmsList->item(i)->text() + "\n";
-            qApp->clipboard()->setText(text.trimmed());
-            QMessageBox::information(m_runningVmsDialog, "Готово", "Список скопирован в буфер");
-        });
         connect(closeBtn, &QPushButton::clicked, m_runningVmsDialog, &QDialog::close);
         connect(m_runningVmsDialog, &QDialog::finished, this, [this]() {
             ui->pushButton_runningVms->setEnabled(true);
@@ -551,41 +539,31 @@ void MainWindow::showRunningVmsDialog()
     }
 
     m_runningVmsList->clear();
-    m_runningVmsList->addItem("Поиск запущенных ВМ...");
+    m_runningVmsList->addItem("Поиск запущенных ВМ в /dev/vmm/...");
 
-    QProcess *ps = new QProcess(this);
-    connect(ps, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, ps]() {
-        QString out = ps->readAllStandardOutput();
+    QProcess *proc = new QProcess(this);
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, proc]() {
+        QString out = proc->readAllStandardOutput().trimmed();
         m_runningVmsList->clear();
 
-        if (out.trimmed().isEmpty()) {
+        if (out.isEmpty()) {
             m_runningVmsList->addItem("Нет запущенных bhyve-машин");
-            ps->deleteLater();
-            return;
+        } else {
+            QStringList vmNames = out.split('\n', Qt::SkipEmptyParts);
+            for (const QString &vmName : vmNames) {
+                if (vmName.isEmpty()) continue;
+
+                auto *item = new QListWidgetItem("▶ " + vmName, m_runningVmsList);
+                item->setData(Qt::UserRole, vmName);
+                item->setToolTip("Имя ВМ: " + vmName);
+            }
         }
-
-        QStringList lines = out.split('\n', Qt::SkipEmptyParts);
-        for (QString line : lines) {
-            // Выделяем имя ВМ (последнее слово в строке)
-            QString vmName = line.split(' ', Qt::SkipEmptyParts).last();
-
-            // Красивая подсветка
-            QString html = line.toHtmlEscaped();
-            html.replace(QRegularExpression(R"(^\w+\s+\w+\s+)"), "<b style=\"color:#50fa7b\">"); // PID
-            html.replace(QRegularExpression(R"(\s+\d+\.\d+\s+)"), "</b> <span style=\"color:#ffb86c\">"); // CPU
-            html.replace(QRegularExpression(R"(\s+\d+[KMG]\s+)"), "</span> <span style=\"color:#f1fa8c\">"); // MEM
-            html.replace(QRegularExpression(R"(([^ ]+)$)"), "</span> <b style=\"color:#bd93f9\">\\1</b>");
-
-            auto *item = new QListWidgetItem(html);
-            item->setData(Qt::UserRole, vmName); // сохраняем имя ВМ
-            m_runningVmsList->addItem(item);
-        }
-        ps->deleteLater();
+        proc->deleteLater();
     });
 
-    ps->setProgram("doas");
-    ps->setArguments({"sh", "-c", "ps auxww | grep -E 'bhyve: .* \\(bhyve\\)' | grep -v grep"});
-    ps->start();
+    proc->setProgram("doas");
+    proc->setArguments({"sh", "-c", "ls /dev/vmm/ 2>/dev/null || echo ''"});  // ← САМЫЙ НАДЁЖНЫЙ СПОСОБ!
+    proc->start();
 
     m_runningVmsDialog->show();
     m_runningVmsDialog->raise();
@@ -598,15 +576,15 @@ void MainWindow::stopSelectedVm()
     auto *item = m_runningVmsList->currentItem();
     if (!item) return;
 
-    QString vmName = item->data(Qt::UserRole).toString();
+    QString vmName = item->data(Qt::UserRole).toString().trimmed();
+    if (vmName.isEmpty()) {
+        QMessageBox::warning(this, "Ошибка", "Имя ВМ пустое!");
+        return;
+    }
 
-    auto reply = QMessageBox::question(m_runningVmsDialog, "Остановить ВМ?",
-                                       QString("Грациозно остановить виртуальную машину <b>%1</b>?").arg(vmName),
-                                       QMessageBox::Yes | QMessageBox::No);
-
-    if (reply == QMessageBox::Yes) {
+    if (QMessageBox::question(this, "Остановить", "Грациозно остановить <b>" + vmName + "</b>?") == QMessageBox::Yes) {
         QProcess::execute("doas", {"bhyvectl", "--vm=" + vmName, "--force-poweroff"});
-        QTimer::singleShot(1500, this, &MainWindow::on_pushButton_runningVms_clicked); // обновить список
+        QTimer::singleShot(2000, this, &MainWindow::on_pushButton_runningVms_clicked);
     }
 }
 
@@ -615,15 +593,14 @@ void MainWindow::killSelectedVm()
     auto *item = m_runningVmsList->currentItem();
     if (!item) return;
 
-    QString vmName = item->data(Qt::UserRole).toString();
+    QString vmName = item->data(Qt::UserRole).toString().trimmed();
+    if (vmName.isEmpty()) {
+        QMessageBox::warning(this, "Ошибка", "Имя ВМ пустое!");
+        return;
+    }
 
-    auto reply = QMessageBox::question(m_runningVmsDialog, "УБИТЬ ВМ?",
-                                       QString("<font color=\"#ff5555\"><b>Жёстко убить (kill -9) ВМ %1?</b></font><br>"
-                                               "Это может повредить файловую систему гостя!").arg(vmName),
-                                       QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-
-    if (reply == QMessageBox::Yes) {
-        QProcess::execute("doas", {"sh", "-c", QString("pkill -9 -f \"bhyve: %1 \"").arg(vmName)});
+    if (QMessageBox::question(this, "УБИТЬ", "ЖЁСТКО убить <b>" + vmName + "</b>?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::Yes) {
+        QProcess::execute("doas", {"sh", "-c", "pkill -9 -f \"bhyve: .* " + vmName + "\""});
         QTimer::singleShot(1500, this, &MainWindow::on_pushButton_runningVms_clicked);
     }
 }
