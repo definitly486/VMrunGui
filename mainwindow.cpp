@@ -310,6 +310,8 @@ void MainWindow::startBhyve()
     // Состояние "Running" ставим ТОЛЬКО в сигнале started()
     ui->pushButton_start->setText("Запускается...");
     bhyveProcess->start();  // ← если не запустится — попадём в errorOccurred
+
+    QTimer::singleShot(1500, this, &MainWindow::attachTapToBridge);
 }
 
 // ======================== Остановка и состояние кнопок ========================
@@ -333,33 +335,55 @@ void MainWindow::attachTapToBridge()
 {
     QString tap = getTapInterface().trimmed();
     if (tap.isEmpty()) {
-        ui->textEdit->append("<font color=\"orange\"><b>[Bridge]</b> tap не указан — пропуск добавления в bridge0</font>");
+        ui->textEdit->append("<font color=\"orange\"><b>[Bridge]</b> tap-интерфейс не указан — добавление в bridge0 пропущено</font>");
         return;
     }
 
+    // 1. Проверяем, существует ли уже интерфейс tapX
     QProcess check;
     check.start("ifconfig", QStringList() << tap);
-    check.waitForFinished(3000);
+    check.waitForFinished(5000);
+
     if (check.exitCode() != 0) {
-        QTimer::singleShot(500, this, &MainWindow::attachTapToBridge);
+        // tap ещё не создан — подождём немного и попробуем снова
+        ui->textEdit->append("<font color=\"orange\"><b>[Bridge]</b> " + tap + " ещё не создан, ждём...</font>");
+        QTimer::singleShot(800, this, &MainWindow::attachTapToBridge);
         return;
     }
 
-    ui->textEdit->append("<font color=\"blue\"><b>[Bridge]</b> Добавляем " + tap + " в bridge0...</font>");
+    // 2. Если tap существует — проверяем, не добавлен ли он уже в bridge0
+    QProcess bridgeCheck;
+    bridgeCheck.start("ifconfig", QStringList() << "bridge0");
+    bridgeCheck.waitForFinished(5000);
+    QString bridgeOutput = bridgeCheck.readAllStandardOutput();
+
+    if (bridgeOutput.contains(tap)) {
+        ui->textEdit->append("<font color=\"green\"><b>[Bridge]</b> " + tap + " уже в bridge0</font>");
+        return;
+    }
+
+    // 3. Добавляем tap в bridge0
+    ui->textEdit->append("<font color=\"blue\"><b>[Bridge]</b> Выполняем: doas ifconfig bridge0 addm " + tap + " up</font>");
+
     QProcess *p = new QProcess(this);
     p->setProgram("doas");
-    p->setArguments(QStringList() << "ifconfig" << "bridge0" << "addm" << tap << "up");
-    connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=]() {
+    p->setArguments({"ifconfig", "bridge0", "addm", tap, "up"});
+
+    connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=](int exitCode) {
         QString out = p->readAllStandardOutput().trimmed();
         QString err = p->readAllStandardError().trimmed();
-        if (p->exitCode() == 0) {
-            ui->textEdit->append("<font color=\"green\"><b>[Bridge]</b> " + tap + " успешно добавлен в bridge0</font>");
+
+        if (exitCode == 0 && out.contains("bridge0")) {
+            ui->textEdit->append("<font color=\"#50fa7b\"><b>[Bridge]</b> " + tap + " успешно добавлен в bridge0 и поднят</font>");
         } else {
-            ui->textEdit->append("<font color=\"red\"><b>[Bridge]</b> Ошибка добавления в bridge0</font>");
-            if (!err.isEmpty()) ui->textEdit->append("<font color=\"red\">" + err.toHtmlEscaped() + "</font>");
+            ui->textEdit->append("<font color=\"red\"><b>[Bridge]</b> Ошибка добавления " + tap + " в bridge0</font>");
+            if (!err.isEmpty()) {
+                ui->textEdit->append("<font color=\"red\">" + err.toHtmlEscaped() + "</font>");
+            }
         }
         p->deleteLater();
     });
+
     p->start();
 }
 
