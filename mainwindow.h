@@ -14,6 +14,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+     bool validateMemory(const QString &mem, QString *errorMessage = nullptr);
 
 private slots:
     void on_pushButton_start_clicked();
