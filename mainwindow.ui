@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>   <!-- чуть расширил, чтобы всё идеально влезло -->
+    <width>900</width>
     <height>620</height>
    </rect>
   </property>
@@ -120,7 +120,6 @@
         </property>
        </widget>
       </item>
-
       <item>
        <widget class="QPushButton" name="pushButton_stop">
         <property name="enabled">
@@ -146,8 +145,6 @@
         </property>
        </widget>
       </item>
-
-      <!-- НОВАЯ КНОПКА: Закрыть без остановки ВМ -->
       <item>
        <widget class="QPushButton" name="pushButton_closeWithoutKilling">
         <property name="minimumSize">
@@ -163,10 +160,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">
-background-color: #7957D5;
-color: white;
-         </string>
+         <string notr="true">background-color: #7957D5; color: white;</string>
         </property>
         <property name="text">
          <string>Закрыть, не убивая ВМ</string>
@@ -175,11 +169,10 @@ color: white;
          <string>Закрывает окно программы, но виртуальная машина продолжает работать в фоне</string>
         </property>
         <property name="visible">
-         <bool>false</bool>   <!-- по умолчанию скрыта, пока ВМ не запущена -->
+         <bool>false</bool>
         </property>
        </widget>
       </item>
-
       <item>
        <widget class="QPushButton" name="pushButton_cleanupTap">
         <property name="minimumSize">
@@ -202,7 +195,6 @@ color: white;
         </property>
        </widget>
       </item>
-
       <item>
        <widget class="QPushButton" name="pushButton_arpScan">
         <property name="minimumSize">
@@ -222,6 +214,33 @@ color: white;
         </property>
         <property name="text">
          <string>Скан сети (arp-scan)</string>
+        </property>
+       </widget>
+      </item>
+
+      <!-- НОВАЯ КНОПКА: Показать запущенные ВМ -->
+      <item>
+       <widget class="QPushButton" name="pushButton_runningVms">
+        <property name="minimumSize">
+         <size>
+          <width>220</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: #2196F3; color: white;</string>
+        </property>
+        <property name="text">
+         <string>Запущенные ВМ</string>
+        </property>
+        <property name="toolTip">
+         <string>Показать все запущенные bhyve-процессы (с PID и именем VM)</string>
         </property>
        </widget>
       </item>

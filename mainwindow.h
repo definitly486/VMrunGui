@@ -25,7 +25,7 @@ private slots:
     void on_pushButton_stop_clicked();
     void cleanupAllTapDevices();
     void on_pushButton_arpScan_clicked();
-
+ void on_pushButton_runningVms_clicked();
 private:
     void startBhyve();
     void attachTapToBridge();
@@ -39,6 +39,11 @@ private:
     void onVmReadyReadStandardError();
 void on_pushButton_closeWithoutKilling_clicked();
     bool validateMemory(const QString &mem, QString *errorMessage = nullptr);
+
+QDialog *m_runningVmsDialog = nullptr;
+QTextEdit *m_runningVmsTextEdit = nullptr;
+
+void showRunningVmsDialog();
 
     // Геттеры
     QString getVmName() const;
