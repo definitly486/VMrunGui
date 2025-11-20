@@ -208,7 +208,7 @@ void MainWindow::startBhyve()
 
     args << "-s" << QString("10,virtio-net,%1").arg(getTapInterface());
     args << "-s" << "15,virtio-9p,sharename=/home/";
-    args << "-s" << "30,fbuf,tcp=0.0.0.0:5900,w=1920,h=1080,wait";
+    args << "-s" << "30,fbuf,tcp=0.0.0.0:5900,w=1920,h=1080";
     args << "-s" << "31,lpc";
     args << "-l" << "bootrom,/usr/local/share/uefi-firmware/BHYVE_UEFI.fd";
     args << "-m" << getMemory();
