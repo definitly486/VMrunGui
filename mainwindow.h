@@ -28,6 +28,8 @@ private slots:
     void destroyVm();
     void setVmRunningState(bool running);
     void setVmStoppedState();
+    void attachTapToBridge();
+    void removeTapFromBridge();     // <-- ЭТУ СТРОКУ ДОБАВЬ
 
 
 private:

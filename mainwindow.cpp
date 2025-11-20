@@ -6,7 +6,6 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QDir>
-#include <QDir>
 #include <QDateTime>
 #include <QDialog>
 #include <QVBoxLayout>
@@ -23,14 +22,14 @@ MainWindow::MainWindow(QWidget *parent)
     shouldRestart = false;
 
     // Подключаем кнопки
-    connect(ui->pushButton_start,       &QPushButton::clicked, this, &MainWindow::on_pushButton_start_clicked);
-    connect(ui->pushButton_stop,        &QPushButton::clicked, this, &MainWindow::on_pushButton_stop_clicked);
-    connect(ui->pushButton_cleanupTap,  &QPushButton::clicked, this, &MainWindow::cleanupAllTapDevices);
-    connect(ui->pushButton_clear,       &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
+    connect(ui->pushButton_start, &QPushButton::clicked, this, &MainWindow::on_pushButton_start_clicked);
+    connect(ui->pushButton_stop, &QPushButton::clicked, this, &MainWindow::on_pushButton_stop_clicked);
+    connect(ui->pushButton_cleanupTap, &QPushButton::clicked, this, &MainWindow::cleanupAllTapDevices);
+    connect(ui->pushButton_clear, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
 
     // Вывод от bhyve
     connect(bhyveProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::onVmReadyReadStandardOutput);
-    connect(bhyveProcess, &QProcess::readyReadStandardError,  this, &MainWindow::onVmReadyReadStandardError);
+    connect(bhyveProcess, &QProcess::readyReadStandardError, this, &MainWindow::onVmReadyReadStandardError);
     connect(bhyveProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &MainWindow::onVmFinished);
     connect(bhyveProcess, &QProcess::errorOccurred, this, &MainWindow::onVmErrorOccurred);
@@ -50,12 +49,11 @@ MainWindow::~MainWindow()
 }
 
 // ======================== Кнопки ========================
-
 void MainWindow::on_pushButton_start_clicked()
 {
     QString vmName = getVmName().trimmed();
 
-    // Если имя пустое — покажем окно со списком существующих VM
+    // Если имя пустое — показываем окно со списком VM
     if (vmName.isEmpty()) {
         QDir vmDir("/ntfs-2TB/vm");
         if (!vmDir.exists()) {
@@ -65,11 +63,10 @@ void MainWindow::on_pushButton_start_clicked()
             return;
         }
 
-        // Собираем все VM (папка + такой же .img внутри)
         QStringList existingVMs;
         const QStringList dirs = vmDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
         for (const QString &dir : dirs) {
-            QString imgPath = vmDir.absolutePath() + "/" + dir + "/" + dir + ".img";
+            QString imgPath = vmDir.absoluteFilePath(dir + "/" + dir + ".img");
             if (QFileInfo::exists(imgPath)) {
                 existingVMs << dir;
             }
@@ -82,99 +79,89 @@ void MainWindow::on_pushButton_start_clicked()
             return;
         }
 
-        // === КРАСИВОЕ ВЕРТИКАЛЬНОЕ ОКНО СО СПИСКОМ ===
         QDialog dialog(this);
         dialog.setWindowTitle("Выберите виртуальную машину");
-        dialog.setMinimumWidth(400);
-        dialog.setMinimumHeight(500);
+        dialog.setMinimumWidth(420);
+        dialog.setMinimumHeight(560);
 
         auto *listWidget = new QListWidget(&dialog);
         auto *layout = new QVBoxLayout(&dialog);
         layout->addWidget(listWidget);
-        dialog.setLayout(layout);
 
-        // Заполняем список с дополнительной инфой (размер и дата)
         for (const QString &name : existingVMs) {
-            QString imgPath = vmDir.absolutePath() + "/" + name + "/" + name + ".img";
+            QString imgPath = vmDir.absoluteFilePath(name + "/" + name + ".img");
             QFileInfo info(imgPath);
-
             QString sizeStr = info.exists()
                                   ? QString::number(info.size() / 1024.0 / 1024 / 1024, 'f', 2) + " ГБ"
                                   : "—";
-
-            QString itemText = QString("%1    (%2, изменён %3)")
+            QString itemText = QString("%1  (%2, %3)")
                                    .arg(name)
                                    .arg(sizeStr)
                                    .arg(info.lastModified().toString("dd.MM.yyyy hh:mm"));
 
             auto *item = new QListWidgetItem(itemText);
-            item->setData(Qt::UserRole, name);  // сохраняем чистое имя VM
+            item->setData(Qt::UserRole, name);
             listWidget->addItem(item);
         }
 
         listWidget->setStyleSheet(
             "QListWidget { font-size: 14px; }"
-            "QListWidget::item { padding: 10px; }"
-            "QListWidget::item:selected { background: #3399ff; color: white; }"
+            "QListWidget::item { padding: 12px; }"
+            "QListWidget::item:selected { background: #0078d4; color: white; }"
             );
 
-        connect(listWidget, &QListWidget::itemDoubleClicked, &dialog, [&](QListWidgetItem *item){
+        connect(listWidget, &QListWidget::itemDoubleClicked, &dialog, [&](QListWidgetItem *item) {
             ui->lineEdit_2->setText(item->data(Qt::UserRole).toString());
             dialog.accept();
-
-            // Если память уже указана — сразу запускаем
             if (!getMemory().isEmpty()) {
                 QTimer::singleShot(100, this, &MainWindow::on_pushButton_start_clicked);
             }
         });
 
-        // Кнопка "Отмена"
         auto *buttonBox = new QDialogButtonBox(QDialogButtonBox::Cancel, &dialog);
         layout->addWidget(buttonBox);
         connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 
-        // Запуск диалога
         if (dialog.exec() == QDialog::Accepted && listWidget->currentItem()) {
             ui->lineEdit_2->setText(listWidget->currentItem()->data(Qt::UserRole).toString());
         }
-
-        return;  // имя не было указано изначально, дальше не идём
+        return;
     }
 
-    // Обычная проверка, если имя уже введено вручную
+    // Проверка памяти
     if (getMemory().isEmpty()) {
         QMessageBox::warning(this, "Ошибка", "Укажите объём памяти (например: 4G или 8192M)!");
         return;
     }
 
-    // Всё ок — запускаем VM
     shouldRestart = true;
     setVmRunningState(true);
     startBhyve();
 }
+
 void MainWindow::on_pushButton_stop_clicked()
 {
     shouldRestart = false;
     ui->textEdit->append("<font color=\"orange\"><b>[Остановка]</b> Остановка виртуальной машины...</font>");
-
     bhyveProcess->terminate();
+
     QTimer::singleShot(4000, this, [this]() {
         if (bhyveProcess->state() == QProcess::Running) {
             ui->textEdit->append("<font color=\"red\"><b>[KILL]</b> Принудительный kill процесса</font>");
             bhyveProcess->kill();
         }
         destroyVm();
+        removeTapFromBridge();  // <-- Удаляем tap из bridge0
         setVmStoppedState();
     });
 }
 
 // ======================== Запуск bhyve ========================
-
 void MainWindow::startBhyve()
 {
     QString vmName = getVmName();
 
-    // Автоопределение пути к диску: /ntfs-2TB/vm/alpine/alpine.img и т.д.
+    // Автоопределение пути к диску
     QString specialDiskPath = QString("/ntfs-2TB/vm/%1/%1.img").arg(vmName);
     QString diskPath;
 
@@ -188,12 +175,10 @@ void MainWindow::startBhyve()
 
     if (!QFileInfo::exists(diskPath)) {
         ui->textEdit->append("<font color=\"red\"><b>[Ошибка]</b> Диск не найден: " + diskPath + "</font>");
-        qWarning() << "Disk image not found:" << diskPath;
         setVmStoppedState();
         return;
     }
 
-    // virtio-blk для Linux-образов на ntfs-2TB, ahci-hd для остальных (Windows)
     QString diskDevice = diskPath.startsWith("/ntfs-2TB/vm/") ? "virtio-blk" : "ahci-hd";
 
     QStringList args = {
@@ -206,7 +191,13 @@ void MainWindow::startBhyve()
         args << "-s" << QString("4,ahci-cd,%1").arg(getIsoPath());
     }
 
-    args << "-s" << QString("10,virtio-net,%1").arg(getTapInterface());
+    QString tapInterface = getTapInterface().trimmed();
+    if (tapInterface.isEmpty()) {
+        tapInterface = "tap0";  // дефолт, если не указан
+        ui->lineEdit_5->setText(tapInterface);
+    }
+
+    args << "-s" << QString("10,virtio-net,%1").arg(tapInterface);
     args << "-s" << "15,virtio-9p,sharename=/home/";
     args << "-s" << "30,fbuf,tcp=0.0.0.0:5900,w=1920,h=1080";
     args << "-s" << "31,lpc";
@@ -221,10 +212,63 @@ void MainWindow::startBhyve()
     bhyveProcess->setProgram("doas");
     bhyveProcess->setArguments(QStringList() << "bhyve" << args);
     bhyveProcess->start();
+
+    // Автоматически добавляем tap в bridge0 через небольшую задержку
+    QTimer::singleShot(800, this, &MainWindow::attachTapToBridge);
+}
+
+// ======================== Привязка tap к bridge0 ========================
+void MainWindow::attachTapToBridge()
+{
+    QString tap = getTapInterface().trimmed();
+    if (tap.isEmpty()) {
+        ui->textEdit->append("<font color=\"orange\"><b>[Bridge]</b> tap не указан — пропуск добавления в bridge0</font>");
+        return;
+    }
+
+    // Проверяем, существует ли интерфейс
+    QProcess check;
+    check.start("ifconfig", QStringList() << tap);
+    check.waitForFinished(3000);
+
+    if (check.exitCode() != 0) {
+        // Ещё не создан — попробуем позже
+        QTimer::singleShot(500, this, &MainWindow::attachTapToBridge);
+        return;
+    }
+
+    ui->textEdit->append("<font color=\"blue\"><b>[Bridge]</b> Добавляем " + tap + " в bridge0...</font>");
+
+    QProcess *p = new QProcess(this);
+    p->setProgram("doas");
+    p->setArguments(QStringList() << "ifconfig" << "bridge0" << "addm" << tap << "up");
+
+    connect(p, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [=]() {
+        QString out = p->readAllStandardOutput().trimmed();
+        QString err = p->readAllStandardError().trimmed();
+
+        if (p->exitCode() == 0) {
+            ui->textEdit->append("<font color=\"green\"><b>[Bridge]</b> " + tap + " успешно добавлен в bridge0</font>");
+        } else {
+            ui->textEdit->append("<font color=\"red\"><b>[Bridge]</b> Ошибка: не удалось добавить " + tap + " в bridge0</font>");
+            if (!err.isEmpty()) ui->textEdit->append("<font color=\"red\">" + err.toHtmlEscaped() + "</font>");
+        }
+        p->deleteLater();
+    });
+
+    p->start();
+}
+
+void MainWindow::removeTapFromBridge()
+{
+    QString tap = getTapInterface().trimmed();
+    if (tap.isEmpty()) return;
+
+    QProcess::execute("doas", QStringList() << "ifconfig" << "bridge0" << "deletem" << tap);
+    ui->textEdit->append("<font color=\"blue\"><b>[Bridge]</b> " + tap + " удалён из bridge0</font>");
 }
 
 // ======================== Состояния кнопок ========================
-
 void MainWindow::setVmRunningState(bool running)
 {
     ui->pushButton_start->setEnabled(!running);
@@ -239,12 +283,13 @@ void MainWindow::setVmStoppedState()
     ui->pushButton_start->setText("Start VM");
 }
 
-// ======================== Обработка завершения и ошибок ========================
-
+// ======================== Обработка завершения ========================
 void MainWindow::onVmFinished(int exitCode, QProcess::ExitStatus)
 {
-    ui->textEdit->append("<font color=\"red\"><b>[Завершен]</b> bhyve завершился (код: " + QString::number(exitCode) + ")</font>");
+    ui->textEdit->append("<font color=\"red\"><b>[Завершён]</b> bhyve завершился (код: " + QString::number(exitCode) + ")</font>");
+
     destroyVm();
+    removeTapFromBridge();  // <-- Важно!
     setVmStoppedState();
 
     if (!shouldRestart || exitCode == 1) {
@@ -252,7 +297,7 @@ void MainWindow::onVmFinished(int exitCode, QProcess::ExitStatus)
         return;
     }
 
-    ui->textEdit->append("Авторестарт через 5 секунд...");
+    ui->textEdit->append("<font color=\"orange\">Авторестарт через 5 секунд...</font>");
     ui->pushButton_start->setText("Перезапустится...");
     QTimer::singleShot(5000, this, &MainWindow::startBhyve);
 }
@@ -261,17 +306,13 @@ void MainWindow::onVmErrorOccurred(QProcess::ProcessError error)
 {
     QString msg;
     switch (error) {
-    case QProcess::FailedToStart:  msg = "Не удалось запустить (doas/bhyve не найден, нет прав или tap занят)"; break;
+    case QProcess::FailedToStart:  msg = "Не удалось запустить (doas/bhyve не найден или нет прав)"; break;
     case QProcess::Crashed:        msg = "bhyve аварийно завершился"; break;
     case QProcess::Timedout:       msg = "Таймаут процесса"; break;
-    case QProcess::ReadError:      msg = "Ошибка чтения из процесса"; break;
-    case QProcess::WriteError:     msg = "Ошибка записи в процесс"; break;
     default:                       msg = "Неизвестная ошибка процесса"; break;
     }
-
     ui->textEdit->append("<font color=\"red\"><b>[ОШИБКА]</b> " + msg + "</font>");
-    qWarning() << "Bhyve process error:" << error;
-
+    removeTapFromBridge();
     setVmStoppedState();
 }
 
@@ -283,48 +324,42 @@ void MainWindow::destroyVm()
 }
 
 // ======================== Логи ========================
-
 void MainWindow::onVmReadyReadStandardOutput()
 {
     QString data = bhyveProcess->readAllStandardOutput();
-    for (const QString &line : data.split('\n', Qt::SkipEmptyParts))
+    for (QString line : data.split('\n', Qt::SkipEmptyParts))
         ui->textEdit->append("<font color=\"green\">" + line.toHtmlEscaped() + "</font>");
 }
 
 void MainWindow::onVmReadyReadStandardError()
 {
     QString data = bhyveProcess->readAllStandardError();
-    for (const QString &line : data.split('\n', Qt::SkipEmptyParts))
+    for (QString line : data.split('\n', Qt::SkipEmptyParts))
         ui->textEdit->append("<font color=\"red\">[ERR] " + line.toHtmlEscaped() + "</font>");
 }
 
-// ======================== Очистка tap ========================
-
+// ======================== Очистка всех tap ========================
 void MainWindow::cleanupAllTapDevices()
 {
     ui->textEdit->append("<b>[Очистка]</b> Уничтожаем все tap-интерфейсы...");
-
     QProcess p;
     p.start("doas", QStringList() << "sh" << "-c"
-                                  << "for t in /dev/tap*; do "
-                                     "[ -e \"$t\" ] && ifconfig ${t#/dev/} destroy && echo \"Уничтожен ${t#/dev/}\"; "
-                                     "done || echo \"Нет занятых tap-устройств\"");
-    p.waitForFinished(5000);
+                                  << "for t in /dev/tap*; do [ -e \"$t\" ] && ifconfig ${t#/dev/} destroy && echo \"Уничтожен ${t#/dev/}\"; done || echo \"Нет tap-устройств\"");
+    p.waitForFinished(8000);
 
     QString out = p.readAllStandardOutput().trimmed();
     QString err = p.readAllStandardError().trimmed();
 
     if (!out.isEmpty()) ui->textEdit->append(out);
-    if (!err.isEmpty()) ui->textEdit->append("<font color=\"red\">" + err + "</font>");
+    if (!err.isEmpty()) ui->textEdit->append("<font color=\"red\">" + err.toHtmlEscaped() + "</font>");
     if (out.isEmpty() && err.isEmpty()) ui->textEdit->append("Нет занятых tap-устройств");
 
-    ui->textEdit->append("<b>[Готово]</b> Очистка tap завершена");
+    ui->textEdit->append("<b>[Готово]</b> Очистка завершена");
 }
 
 // ======================== Геттеры ========================
-
-QString MainWindow::getVmName() const        { return ui->lineEdit_2->text().trimmed(); }
-QString MainWindow::getMemory() const        { return ui->lineEdit->text().trimmed(); }
-QString MainWindow::getDiskPath() const      { return ui->lineEdit_3->text().trimmed(); }
-QString MainWindow::getIsoPath() const       { return ui->lineEdit_4->text().trimmed(); }
-QString MainWindow::getTapInterface() const  { return ui->lineEdit_5->text().trimmed(); }
+QString MainWindow::getVmName() const       { return ui->lineEdit_2->text().trimmed(); }
+QString MainWindow::getMemory() const       { return ui->lineEdit->text().trimmed(); }
+QString MainWindow::getDiskPath() const     { return ui->lineEdit_3->text().trimmed(); }
+QString MainWindow::getIsoPath() const      { return ui->lineEdit_4->text().trimmed(); }
+QString MainWindow::getTapInterface() const { return ui->lineEdit_5->text().trimmed(); }
