@@ -31,6 +31,7 @@ private slots:
     void setVmStoppedState();
     void attachTapToBridge();
     void removeTapFromBridge();     // <-- ЭТУ СТРОКУ ДОБАВЬ
+    void on_pushButton_arpScan_clicked();   // ← новая строка
 
 
 private:

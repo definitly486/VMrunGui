@@ -17,11 +17,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     bhyveProcess = new QProcess(this);
     shouldRestart = false;
 
-    // Подсказка в поле памяти
     ui->lineEdit->setPlaceholderText("Например: 4G, 8G, 8192M");
 
     // Подключаем кнопки
@@ -30,8 +28,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_cleanupTap, &QPushButton::clicked, this, &MainWindow::cleanupAllTapDevices);
     connect(ui->pushButton_clear, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
 
+    // ← ЭТО НОВАЯ СТРОКА (и только она!)
+    connect(ui->pushButton_arpScan, &QPushButton::clicked, this, &MainWindow::on_pushButton_arpScan_clicked);
+
     // Вывод от bhyve
     connect(bhyveProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::onVmReadyReadStandardOutput);
+    // ... остальное без изменений
     connect(bhyveProcess, &QProcess::readyReadStandardError, this, &MainWindow::onVmReadyReadStandardError);
     connect(bhyveProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             this, &MainWindow::onVmFinished);
@@ -400,6 +402,58 @@ void MainWindow::cleanupAllTapDevices()
     if (out.isEmpty() && err.isEmpty()) ui->textEdit->append("Нет занятых tap-устройств");
     ui->textEdit->append("<b>[Готово]</b> Очистка завершена");
 }
+
+void MainWindow::on_pushButton_arpScan_clicked()
+{
+    ui->textEdit->append("<font color=\"magenta\"><b>[ARP-SCAN]</b> Запуск сканирования локальной сети...</font>");
+
+    // Создаём процесс ПЕРЕД connect!
+    QProcess* arpProcess = new QProcess(this);
+
+    // Теперь arpProcess уже существует → connect видит его
+    connect(arpProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            this, [this, arpProcess](int, QProcess::ExitStatus) {
+                QString output = arpProcess->readAllStandardOutput();
+                QString error  = arpProcess->readAllStandardError();
+
+                if (!output.isEmpty()) {
+                    ui->textEdit->append("<font color=\"cyan\"><b>[ARP-SCAN Результат]</b></font>");
+                    for (const QString& line : output.split('\n', Qt::SkipEmptyParts)) {
+                        QString escaped = line.toHtmlEscaped();
+
+                        // IP — зелёный жирный
+                        escaped.replace(QRegularExpression(R"(\b\d{1,3}(\.\d{1,3}){3}\b)"),
+                                        "<b><font color=\"#00ff00\">\\1</font></b>");
+
+                        // MAC — жёлтый
+                        escaped.replace(QRegularExpression(R"([0-9A-Fa-f]{2}(:[0-9A-Fa-f]{2}){5})"),
+                                        "<font color=\"#ffff00\">\\1</font>");
+
+                        ui->textEdit->append(escaped);
+                    }
+                }
+
+                if (!error.isEmpty()) {
+                    ui->textEdit->append("<font color=\"red\"><b>[ARP-SCAN Ошибка]</b></font>");
+                    ui->textEdit->append("<font color=\"red\">" + error.toHtmlEscaped() + "</font>");
+                }
+
+                if (output.isEmpty() && error.isEmpty()) {
+                    ui->textEdit->append("<font color=\"gray\">Ничего не найдено (arp-scan не установлен?)</font>");
+                }
+
+                ui->textEdit->append("<font color=\"magenta\"><b>[ARP-SCAN]</b> Сканирование завершено.</font>");
+                ui->pushButton_arpScan->setEnabled(true);
+
+                arpProcess->deleteLater();
+            });
+
+    // Запускаем через doas
+    arpProcess->setProgram("doas");
+    arpProcess->setArguments({"arp-scan", "--localnet"});
+    arpProcess->start();
+}
+
 
 // ======================== Геттеры ========================
 QString MainWindow::getVmName() const { return ui->lineEdit_2->text().trimmed(); }
