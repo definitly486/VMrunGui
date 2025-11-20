@@ -7,6 +7,7 @@
 // Эти два include обязательны!
 #include <QDialog>
 #include <QTextEdit>
+#include <QListWidget>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,6 +27,8 @@ private slots:
     void cleanupAllTapDevices();
     void on_pushButton_arpScan_clicked();
  void on_pushButton_runningVms_clicked();
+    void stopSelectedVm();
+    void killSelectedVm();
 private:
     void startBhyve();
     void attachTapToBridge();
@@ -39,6 +42,10 @@ private:
     void onVmReadyReadStandardError();
 void on_pushButton_closeWithoutKilling_clicked();
     bool validateMemory(const QString &mem, QString *errorMessage = nullptr);
+
+QListWidget *m_runningVmsList = nullptr;
+QPushButton *m_stopBtn = nullptr;
+QPushButton *m_killBtn = nullptr;
 
 QDialog *m_runningVmsDialog = nullptr;
 QTextEdit *m_runningVmsTextEdit = nullptr;
