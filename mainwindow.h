@@ -37,7 +37,7 @@ private:
     void destroyVm();
     void onVmReadyReadStandardOutput();
     void onVmReadyReadStandardError();
-
+void on_pushButton_closeWithoutKilling_clicked();
     bool validateMemory(const QString &mem, QString *errorMessage = nullptr);
 
     // Геттеры

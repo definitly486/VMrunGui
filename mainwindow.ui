@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>  <!-- чуть расширил окно, чтобы всё влезло красиво -->
+    <width>900</width>   <!-- чуть расширил, чтобы всё идеально влезло -->
     <height>620</height>
    </rect>
   </property>
@@ -25,7 +25,6 @@
        <string>Параметры виртуальной машины</string>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <!-- Твои поля остаются без изменений -->
        <item row="0" column="0">
         <widget class="QLabel" name="label">
          <property name="text">
@@ -121,6 +120,7 @@
         </property>
        </widget>
       </item>
+
       <item>
        <widget class="QPushButton" name="pushButton_stop">
         <property name="enabled">
@@ -146,6 +146,40 @@
         </property>
        </widget>
       </item>
+
+      <!-- НОВАЯ КНОПКА: Закрыть без остановки ВМ -->
+      <item>
+       <widget class="QPushButton" name="pushButton_closeWithoutKilling">
+        <property name="minimumSize">
+         <size>
+          <width>240</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+background-color: #7957D5;
+color: white;
+         </string>
+        </property>
+        <property name="text">
+         <string>Закрыть, не убивая ВМ</string>
+        </property>
+        <property name="toolTip">
+         <string>Закрывает окно программы, но виртуальная машина продолжает работать в фоне</string>
+        </property>
+        <property name="visible">
+         <bool>false</bool>   <!-- по умолчанию скрыта, пока ВМ не запущена -->
+        </property>
+       </widget>
+      </item>
+
       <item>
        <widget class="QPushButton" name="pushButton_cleanupTap">
         <property name="minimumSize">
@@ -166,13 +200,9 @@
         <property name="text">
          <string>Force cleanup tap</string>
         </property>
-        <property name="toolTip">
-         <string>Уничтожить все занятые tap-интерфейсы (решает "Device busy")</string>
-        </property>
        </widget>
       </item>
 
-      <!-- === НОВАЯ КНОПКА: Скан сети === -->
       <item>
        <widget class="QPushButton" name="pushButton_arpScan">
         <property name="minimumSize">
@@ -192,9 +222,6 @@
         </property>
         <property name="text">
          <string>Скан сети (arp-scan)</string>
-        </property>
-        <property name="toolTip">
-         <string>Быстрое сканирование локальной сети через arp-scan --localnet</string>
         </property>
        </widget>
       </item>

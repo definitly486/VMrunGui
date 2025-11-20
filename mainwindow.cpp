@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_cleanupTap, &QPushButton::clicked, this, &MainWindow::cleanupAllTapDevices);
     connect(ui->pushButton_clear, &QPushButton::clicked, ui->textEdit, &QTextEdit::clear);
     connect(ui->pushButton_arpScan, &QPushButton::clicked, this, &MainWindow::on_pushButton_arpScan_clicked);
-
+    connect(ui->pushButton_closeWithoutKilling, &QPushButton::clicked,
+            this, &MainWindow::on_pushButton_closeWithoutKilling_clicked);
     connect(bhyveProcess, &QProcess::readyReadStandardOutput, this, &MainWindow::onVmReadyReadStandardOutput);
     connect(bhyveProcess, &QProcess::readyReadStandardError, this, &MainWindow::onVmReadyReadStandardError);
     connect(bhyveProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
@@ -45,11 +46,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    if (bhyveProcess && bhyveProcess->state() == QProcess::Running) {
-        shouldRestart = false;
-        bhyveProcess->kill();
-        destroyVm();
-    }
+
     delete ui;
 }
 
@@ -369,14 +366,20 @@ void MainWindow::setVmRunningState(bool running)
     ui->pushButton_start->setEnabled(!running);
     ui->pushButton_stop->setEnabled(running);
     ui->pushButton_start->setText(running ? "Запускается..." : "Start VM");
+    // ← ЭТА СТРОКА НОВАЯ: показываем кнопку только когда ВМ запущена
+    ui->pushButton_closeWithoutKilling->setVisible(running);
 }
+
 
 void MainWindow::setVmStoppedState()
 {
     ui->pushButton_start->setEnabled(true);
     ui->pushButton_stop->setEnabled(false);
     ui->pushButton_start->setText("Start VM");
+    // ← ЭТА СТРОКА НОВАЯ: скрываем кнопку, когда ВМ остановлена
+    ui->pushButton_closeWithoutKilling->setVisible(false);
 }
+
 
 void MainWindow::onVmFinished(int exitCode, QProcess::ExitStatus)
 {
@@ -443,6 +446,35 @@ void MainWindow::cleanupAllTapDevices()
     ui->textEdit->append("<b>[Готово]</b> Очистка завершена");
 }
 
+void MainWindow::on_pushButton_closeWithoutKilling_clicked()
+{
+    if (bhyveProcess->state() != QProcess::Running) {
+        close();
+        return;
+    }
+
+    auto reply = QMessageBox::question(this,
+                                       "Закрыть окно?",
+                                       "<b>Виртуальная машина продолжит работать в фоне!</b><br><br>"
+                                       "Остановить её потом можно вручную:<br><br>"
+                                       "<code>doas pkill -f \"bhyve.*" + getVmName() + "\"</code><br>"
+                                                           "или<br>"
+                                                           "<code>doas bhyvectl --destroy --vm=" + getVmName() + "</code>",
+                                       QMessageBox::Yes | QMessageBox::No,
+                                       QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+        ui->textEdit->append("<font color=\"#ffb86c\"><b>[GUI]</b> Окно закрывается — ВМ остаётся запущенной</font>");
+
+        // Отсоединяем процесс, чтобы он не умер при закрытии окна
+        if (bhyveProcess->state() == QProcess::Running) {
+            bhyveProcess->setParent(nullptr);
+            disconnect(bhyveProcess, nullptr, nullptr, nullptr);
+        }
+
+        close();  // или QApplication::quit();
+    }
+}
 QString MainWindow::getVmName() const { return ui->lineEdit_2->text().trimmed(); }
 QString MainWindow::getMemory() const { return ui->lineEdit->text().trimmed(); }
 QString MainWindow::getDiskPath() const { return ui->lineEdit_3->text().trimmed(); }
