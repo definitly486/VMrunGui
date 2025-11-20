@@ -605,6 +605,47 @@ void MainWindow::killSelectedVm()
     }
 }
 
+void MainWindow::on_pushButton_killAll_clicked()
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this,
+        "☠️ УНИЧТОЖИТЬ ВСЁ ☠️",
+        "<h3 style='color:#ff2d55'>Ты уверен на 100%?</h3>"
+        "<b>Это жёстко убьёт ВСЕ запущенные bhyve-машины</b><br><br>"
+        "• pkill -9 всех процессов bhyve<br>"
+        "• bhyvectl --destroy для всех /dev/vmm/*<br><br>"
+        "Данные не потеряются, но все несохранённые изменения в гостевых ОС — пропадут!",
+        QMessageBox::Yes | QMessageBox::No,
+        QMessageBox::No);
+
+    if (reply != QMessageBox::Yes)
+        return;
+
+    ui->textEdit->append("<font color=\"#ff2d55\"><b>[KILL ALL]</b> Запуск массового уничтожения bhyve...</font>");
+
+    // 1. Сначала убиваем все процессы bhyve (самое быстрое)
+    QProcess::execute("doas", {"pkill", "-9", "-f", "bhyve:"});
+
+    // 2. Потом чистим остатки в /dev/vmm (на случай если что-то осталось)
+    QProcess destroyer(this);
+    destroyer.start("doas", QStringList() << "sh" << "-c"
+        << "for vm in /dev/vmm/*; do [ -e \"$vm\" ] && bhyvectl --destroy --vm=${vm##*/} 2>/dev/null || true; done");
+    destroyer.waitForFinished(8000);
+
+    // 3. Очищаем tap-интерфейсы (на всякий случай)
+    cleanupAllTapDevices();
+
+    // 4. Принудительно сбрасываем состояние GUI
+    shouldRestart = false;
+    if (bhyveProcess->state() != QProcess::NotRunning) {
+        bhyveProcess->kill();
+    }
+    setVmStoppedState();
+
+    ui->textEdit->append("<font color=\"#ff2d55\"><b>[KILL ALL]</b> Все bhyve-машины уничтожены. Мир очищен. ☠️</font>");
+    QMessageBox::critical(this, "☠️ УНИЧТОЖЕНО ☠️", "Все виртуальные машины были жёстко убиты.<br>Можешь запускать новые.");
+}
+
 QString MainWindow::getVmName() const { return ui->lineEdit_2->text().trimmed(); }
 QString MainWindow::getMemory() const { return ui->lineEdit->text().trimmed(); }
 QString MainWindow::getDiskPath() const { return ui->lineEdit_3->text().trimmed(); }

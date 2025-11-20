@@ -94,7 +94,6 @@
       </layout>
      </widget>
     </item>
-
     <!-- ============ КНОПКИ УПРАВЛЕНИЯ ============ -->
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -217,8 +216,6 @@
         </property>
        </widget>
       </item>
-
-      <!-- НОВАЯ КНОПКА: Показать запущенные ВМ -->
       <item>
        <widget class="QPushButton" name="pushButton_runningVms">
         <property name="minimumSize">
@@ -239,8 +236,38 @@
         <property name="text">
          <string>Запущенные ВМ</string>
         </property>
+       </widget>
+      </item>
+
+      <!-- ☢️ НОВАЯ КНОПКА: УБИТЬ ВСЁ ☢️ -->
+      <item>
+       <widget class="QPushButton" name="pushButton_killAll">
+        <property name="minimumSize">
+         <size>
+          <width>220</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+          background-color: #ff0040;
+          color: white;
+          border: 2px solid #ff0040;
+          border-radius: 6px;
+         </string>
+        </property>
+        <property name="text">
+         <string>Kill All VMs ☠️</string>
+        </property>
         <property name="toolTip">
-         <string>Показать все запущенные bhyve-процессы (с PID и именем VM)</string>
+         <string>МГНОВЕННО убить ВСЕ запущенные bhyve-машины (pkill -9 + bhyvectl --destroy)</string>
         </property>
        </widget>
       </item>
@@ -260,7 +287,6 @@
       </item>
      </layout>
     </item>
-
     <item>
      <widget class="QGroupBox" name="groupBox_2">
       <property name="title">

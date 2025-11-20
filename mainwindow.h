@@ -29,6 +29,7 @@ private slots:
  void on_pushButton_runningVms_clicked();
     void stopSelectedVm();
     void killSelectedVm();
+   void on_pushButton_killAll_clicked();  // ← вот эта строка решает ошибку компиляции
 private:
     void startBhyve();
     void attachTapToBridge();
